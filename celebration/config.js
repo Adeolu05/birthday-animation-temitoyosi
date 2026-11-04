@@ -8,14 +8,15 @@
 
 export const DEFAULTS = {
   name: 'Temitoyosi',
-  age: null,            // e.g. 25 — shows "25" in the sky during the intro
-  from: '',             // e.g. 'David' — shown as a signature on the final card
+  age: 21,              // shows the age in the sky and on the letter (null to hide)
+  from: 'David',        // signature on the letter
   candles: 7,           // 1–12 candles on the cake
   message:
     'To the grace you carry, the warmth you bring into every room, and every ' +
     'beautiful thing this new year is holding for you. Wear your crown well.',
-  // Photos shown as floating polaroids in the finale (paths are relative to this folder).
+  // Photos shown in gilded frames in the finale (paths are relative to this folder).
   photos: [
+    'img/photo-crown-2.jpg',
     'img/photo-crown.jpg',
     'img/photo-smile.jpg',
     '../Temitoyosi/img/image1.jfif',

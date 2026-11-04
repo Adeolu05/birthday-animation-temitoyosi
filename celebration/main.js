@@ -196,7 +196,7 @@ scene.add(stars);
 
 const floor = new THREE.Mesh(
   new THREE.CircleGeometry(70, 72),
-  new THREE.MeshStandardMaterial({ color: 0x0b0907, roughness: 0.3, metalness: 0.35, envMapIntensity: 0.22 })
+  new THREE.MeshStandardMaterial({ color: 0x0b0907, roughness: 0.5, metalness: 0.2, envMapIntensity: 0.2 })
 );
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
@@ -879,7 +879,7 @@ class Fireworks {
     const fc = new THREE.Color().setHSL(main[0], main[1] * 0.8, 0.6);
     fwLight.color.copy(fc);
     fwLight.position.set(x, y, z);
-    fwLight.intensity = 60 * big;
+    fwLight.intensity = 40 * big;
     sound.boom(opts.big ? 1.2 : rand(0.7, 1));
     if (type === 'strobe' || type === 'willow' || type === 'kamuro') sound.crackle();
   }
@@ -1025,7 +1025,7 @@ const balloons = (() => {
   const count = IS_MOBILE ? 6 : 10;
   for (let i = 0; i < count; i++) {
     const c = cols[i % cols.length];
-    const mat = new THREE.MeshPhysicalMaterial({ color: c, metalness: c === 0xf1ebe0 ? 0.2 : 0.95, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1.2, iridescence: c === 0xf1ebe0 ? 0.9 : 0 });
+    const mat = new THREE.MeshPhysicalMaterial({ color: c, metalness: c === 0xf1ebe0 ? 0.2 : 0.95, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: c === 0xf1ebe0 ? 0.6 : 1.1, iridescence: c === 0xf1ebe0 ? 0.9 : 0 });
     const b = new THREE.Group();
     const body = new THREE.Mesh(geo, mat);
     body.castShadow = true;
@@ -1115,7 +1115,7 @@ const photos = (() => {
   function show() {
     group.visible = true;
     state.active = true;
-    animate(state.radius, { v: camera.aspect < 0.9 ? 4.9 : 6.8 }, 2.6, ease.outCubic);
+    animate(state.radius, { v: (camera.aspect < 0.9 ? 4.9 : 6.8) * (n > 5 ? 1.08 : 1) }, 2.6, ease.outCubic);
     items.forEach((it, i) => sleep(0.25 + i * 0.25).then(() => animate(it.holder.userData.grow, { v: 1 }, 1.2, ease.outBack)));
   }
   function update(dt, t) {
@@ -1249,7 +1249,7 @@ async function buildStates() {
     width: w, centerY: TEXT_Y, font: roman, spacing: 0.1, colorFn: gradient([0xb48c4c, 0xe6cf9f, 0xc39a58]),
   });
   if (CFG.age) {
-    STATES.age = sampleText([String(CFG.age)], { width: portrait ? 15 : 22, centerY: TEXT_Y, font: italic, colorFn: goldFn });
+    STATES.age = sampleText([String(CFG.age)], { width: portrait ? 34 : 44, centerY: TEXT_Y, font: italic, colorFn: goldFn });
   }
   STATES.name = sampleText([CFG.name], { width: portrait ? 13 : 22, centerY: TEXT_Y, font: italic, colorFn: goldFn });
   STATES.crown = sampleCrown(portrait ? 15 : 20, TEXT_Y - 0.3);
@@ -1630,6 +1630,10 @@ function frame(now) {
   $('final-message').textContent = CFG.message;
   $('final-from').textContent = CFG.from ? `With love, ${CFG.from}` : '';
   $('monogram').textContent = CFG.name.trim().charAt(0).toUpperCase();
+  if (CFG.age) {
+    const v = CFG.age % 100, suf = ['th', 'st', 'nd', 'rd'];
+    $('final-label').textContent = `Happy ${CFG.age}${suf[(v - 20) % 10] || suf[v] || suf[0]} Birthday`;
+  }
 
   await buildStates();
   cut(SHOTS.intro);
