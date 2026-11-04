@@ -1,4 +1,4 @@
-// ✏️  Personalise the celebration here.
+// Personalise the celebration here.
 //
 // Every value can also be set from the link itself, so one page works for anyone:
 //   celebration/index.html?name=Temitoyosi&age=25&from=David
@@ -12,9 +12,8 @@ export const DEFAULTS = {
   from: '',             // e.g. 'David' — shown as a signature on the final card
   candles: 7,           // 1–12 candles on the cake
   message:
-    'Another trip around the sun, and you still make the whole sky brighter. ' +
-    'May this year bring you endless joy, big dreams coming true, and all the ' +
-    'love you give coming right back to you. 💛',
+    'To the grace you carry, the warmth you bring into every room, and every ' +
+    'beautiful thing this new year is holding for you. Wear your crown well.',
   // Photos shown as floating polaroids in the finale (paths are relative to this folder).
   photos: [
     'img/photo-crown.jpg',

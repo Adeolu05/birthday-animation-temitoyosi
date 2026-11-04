@@ -1,30 +1,27 @@
-# 🎂 NEW: 3D Birthday Celebration (Three.js)
+# 3D Birthday Celebration (Three.js)
 
-Open **`celebration/index.html`** (or just the site root, which redirects there) for a cinematic 3D birthday show:
+Open **`celebration/index.html`** (the site root redirects there). It's a cinematic, black-and-gold birthday show:
 
-1. ✨ A spinning particle galaxy that morphs into **HAPPY BIRTHDAY**, then her **name in gold**, then a beating heart
-2. 🎂 The particles rain down and *build* a 3D two-tier cake, and the candles light up one by one
-3. 🎶 A music box plays *Happy Birthday*, with karaoke-style captions
-4. 💫 "Make a wish…", then blow out the candles: tap, press the button, or **actually blow into your mic** 🎤
-5. 🎆 Fireworks (they light up the cake!), confetti cannons, floating balloons, polaroid photos orbiting the cake, and a personal message card
+1. A galaxy of gold dust resolves into **HAPPY BIRTHDAY**, then her name, then a jewelled crown
+2. The particles fall and build a garnet-velvet and ivory cake on a gold stand, with a gold drip, pearls, gold leaf and a crown topper
+3. Ivory tapers light one by one while a music box plays *Happy Birthday*
+4. Make a wish, then blow out the candles: tap, press the button, or blow into the microphone
+5. Gold willow fireworks, gold-foil confetti, chrome balloons, her photographs in gilded frames, and a personal letter
 
-All sound is synthesised live (no audio files), and three.js is bundled in `celebration/vendor/`, so there's no CDN to fail.
-It works on phones and desktops.
+All sound is synthesised live, three.js is bundled in `celebration/vendor/`, and it works on phones and desktops.
 
-### Personalise it with the link (no code needed)
+### Personalise it with the link
 
 | Param | Example | What it does |
 |---|---|---|
-| `name` | `?name=Temitoyosi` | Name in the sky, captions and card |
-| `age` | `&age=17` | Shows the age in the intro sequence |
-| `from` | `&from=David` | Signs the card "with love, David" |
-| `msg` | `&msg=Have%20the%20best%20day` | Custom message on the card |
-| `candles` | `&candles=5` | Number of candles (1–12) |
+| `name` | `?name=Temitoyosi` | Name in the sky, captions and letter |
+| `age` | `&age=17` | Shows the age in the opening sequence |
+| `from` | `&from=David` | Signs the letter "With love, David" |
+| `msg` | `&msg=...` | Your own message for the letter |
+| `candles` | `&candles=5` | Number of candles (1 to 12) |
 
-Defaults and the photo list live in `celebration/config.js`. Photos are in `celebration/img/`.
-
-> Open it from a web server or GitHub Pages: browsers block ES modules on `file://`.
-> For a quick local test, run `python3 -m http.server` in the repo folder and visit `http://localhost:8000/celebration/`.
+Defaults and the photo list live in `celebration/config.js`; photos are in `celebration/img/`.
+Serve it over HTTP (GitHub Pages, or `python3 -m http.server` and visit `/celebration/`), since browsers block ES modules on `file://`.
 
 ---
 
