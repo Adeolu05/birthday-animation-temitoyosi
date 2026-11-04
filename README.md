@@ -16,7 +16,7 @@ All sound is synthesised live, three.js is bundled in `celebration/vendor/`, and
 |---|---|---|
 | `name` | `?name=Temitoyosi` | Name in the sky, captions and letter |
 | `age` | `&age=17` | Shows the age in the opening sequence |
-| `from` | `&from=David` | Signs the letter "With love, David" |
+| `from` | `&from=David` | Signs the letter "Your friend, David" |
 | `msg` | `&msg=...` | Your own message for the letter |
 | `candles` | `&candles=5` | Number of candles (1 to 12) |
 

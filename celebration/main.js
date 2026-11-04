@@ -1252,10 +1252,13 @@ async function buildStates() {
     STATES.age = sampleText([String(CFG.age)], { width: portrait ? 34 : 44, centerY: TEXT_Y, font: italic, colorFn: goldFn });
   }
   STATES.name = sampleText([CFG.name], { width: portrait ? 13 : 22, centerY: TEXT_Y, font: italic, colorFn: goldFn });
+  STATES.virtues = sampleText(portrait ? ['CALM', 'ELEGANT', 'LIVELY', 'KIND'] : ['CALM  \u00b7  ELEGANT', 'LIVELY  \u00b7  KIND'], {
+    width: w, centerY: TEXT_Y, font: roman, spacing: 0.1, colorFn: gradient([0xb48c4c, 0xe6cf9f, 0xc39a58]),
+  });
   STATES.crown = sampleCrown(portrait ? 15 : 20, TEXT_Y - 0.3);
   // smaller shapes pack the same particle count into less area, so dim them to match
   const refDensity = STATES.happy.density;
-  for (const st of [STATES.age, STATES.name, STATES.crown]) {
+  for (const st of [STATES.age, STATES.name, STATES.virtues, STATES.crown]) {
     if (!st) continue;
     const f = Math.min(1, Math.pow(refDensity / st.density, 0.8));
     for (let i = 0; i < st.col.length; i++) st.col[i] *= f;
@@ -1348,7 +1351,7 @@ async function startShow() {
   phase = 'show';
   sound.init();
   sound.chime();
-  sound.ambience(9, 2.4);
+  sound.theme({ bars: 8, vol: 1.05 });
   ui.hide('intro');
   canvas.focus();
 
@@ -1370,6 +1373,11 @@ async function startShow() {
   animate(hero.mat.uniforms.uShimmer, { value: 1 }, 0.6);
   await sleep(2.8);
   animate(hero.mat.uniforms.uShimmer, { value: 0 }, 0.6);
+
+  // → the words that describe her
+  await morphTo(STATES.virtues, 2.4, { arc: 2.6, sweep: true });
+  sound.sparkle(sound.now, 0.06);
+  await sleep(3.0);
 
   // → a jewelled crown
   await morphTo(STATES.crown, 2.4, { arc: 2.4 });
@@ -1486,7 +1494,13 @@ async function finale() {
   ui.show('finale');
   layoutCard(true);
   await sleep(1.5);
-  sound.song({ beat: 0.58, vol: 0.45 });
+  // the theme returns, fuller, while she reads — and keeps gently looping
+  (async () => {
+    for (;;) {
+      const len = sound.theme({ bars: 16, vol: 1, strings: true });
+      await sleep(len + 3);
+    }
+  })();
 }
 
 // ============================================================================
@@ -1628,7 +1642,7 @@ function frame(now) {
   document.title = `Happy Birthday, ${CFG.name}`;
   $('final-name').textContent = CFG.name;
   $('final-message').textContent = CFG.message;
-  $('final-from').textContent = CFG.from ? `With love, ${CFG.from}` : '';
+  $('final-from').textContent = CFG.from ? `${CFG.signoff} ${CFG.from}` : '';
   $('monogram').textContent = CFG.name.trim().charAt(0).toUpperCase();
   if (CFG.age) {
     const v = CFG.age % 100, suf = ['th', 'st', 'nd', 'rd'];

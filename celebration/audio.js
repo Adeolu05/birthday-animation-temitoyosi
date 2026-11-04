@@ -231,6 +231,122 @@ export class Sound {
 
   // ---------------------------------------------------------------- music
 
+  // Soft felt-piano voice: slightly inharmonic partials, hammer-bright attack that mellows.
+  piano(midi, t, dur, vol = 0.2) {
+    if (!this.ctx) return;
+    const ctx = this.ctx;
+    const f = mtof(midi);
+    const ring = Math.max(dur * 1.6, 2.2 + (72 - midi) * 0.04);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(vol * 0.35, t + 0.5);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + ring);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(Math.min(9000, f * 9), t);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(500, f * 2.2), t + 1.2);
+    lp.connect(g);
+    const B = 0.00035;
+    [[1, 1], [2, 0.42], [3, 0.16], [4, 0.08], [5, 0.035]].forEach(([n, a]) => {
+      const o = ctx.createOscillator();
+      const og = ctx.createGain();
+      o.type = n === 1 ? 'triangle' : 'sine';
+      o.frequency.value = f * n * Math.sqrt(1 + B * n * n);
+      o.detune.value = (Math.random() - 0.5) * 3;
+      og.gain.value = a;
+      o.connect(og).connect(lp);
+      o.start(t);
+      o.stop(t + ring + 0.05);
+    });
+    this.out(g, 0.55);
+  }
+
+  // Bowed string ensemble swell
+  strings(midis, t, dur, vol = 0.03) {
+    if (!this.ctx) return;
+    const ctx = this.ctx;
+    const g = ctx.createGain();
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 1700;
+    lp.Q.value = 0.3;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + dur * 0.45);
+    g.gain.linearRampToValueAtTime(vol * 0.7, t + dur);
+    g.gain.linearRampToValueAtTime(0.0001, t + dur + 1.2);
+    lp.connect(g);
+    for (const m of midis) for (const det of [-9, 0, 9]) {
+      const o = ctx.createOscillator();
+      const vib = ctx.createOscillator();
+      const vg = ctx.createGain();
+      o.type = 'sawtooth';
+      o.frequency.value = mtof(m);
+      o.detune.value = det;
+      vib.frequency.value = 4.6 + Math.random();
+      vg.gain.value = 2.2;
+      vib.connect(vg).connect(o.frequency);
+      o.connect(lp);
+      o.start(t); vib.start(t);
+      o.stop(t + dur + 1.3); vib.stop(t + dur + 1.3);
+    }
+    this.out(g, 0.7);
+  }
+
+  // An original piano ballad (Am – F – C – G), written for this page.
+  // Returns its length in seconds.
+  theme({ bars = 16, vol = 1, strings = false, bpm = 66 } = {}) {
+    const beat = 60 / bpm;
+    if (!this.ctx) return bars * 4 * beat;
+    const t0 = this.now + 0.1;
+    const Am = [45, 52, 57, 60], F = [41, 48, 53, 57], C = [48, 55, 60, 64], G = [43, 50, 55, 59], Em = [40, 47, 52, 55];
+    const chords = [Am, F, C, G, Am, F, C, G, F, G, Em, Am, F, G, C, C];
+    const melody = [
+      [[76, 1.5], [74, 0.5], [72, 1], [71, 1]],
+      [[69, 2], [72, 1], [77, 1]],
+      [[76, 1.5], [74, 0.5], [76, 1], [79, 1]],
+      [[74, 2], [71, 1], [74, 1]],
+      [[76, 1.5], [74, 0.5], [72, 1], [76, 1]],
+      [[81, 2], [79, 1], [77, 1]],
+      [[76, 1], [79, 1], [84, 1.5], [83, 0.5]],
+      [[83, 2], [81, 0.5], [79, 1.5]],
+      [[81, 1.5], [79, 0.5], [77, 1], [76, 1]],
+      [[74, 1.5], [76, 0.5], [77, 1], [79, 1]],
+      [[79, 1.5], [76, 0.5], [71, 1], [76, 1]],
+      [[72, 2], [76, 1], [81, 1]],
+      [[81, 1.5], [79, 0.5], [77, 1], [81, 1]],
+      [[79, 1.5], [77, 0.5], [74, 1], [71, 1]],
+      [[76, 1], [74, 1], [72, 2]],
+      [[72, 4]],
+    ];
+    const playBar = (b) => {
+      if (!this.ctx) return;
+      const bt = t0 + b * 4 * beat;
+      const ch = chords[b % 16];
+      const last = b === bars - 1;
+      // left hand: rolling broken chord in eighths
+      const pattern = last ? [0, 1, 2, 3] : [0, 1, 2, 3, 2, 1, 2, 3];
+      const step = last ? beat : beat / 2;
+      pattern.forEach((k, i) => {
+        const swell = 0.75 + 0.25 * Math.sin((i / pattern.length) * Math.PI);
+        this.piano(ch[k], bt + i * step + Math.random() * 0.01, step * 2, 0.07 * vol * swell);
+      });
+      this.piano(ch[0] - 12, bt, beat * 4, 0.075 * vol);
+      // right hand melody (bars 1–4 are played an octave lower and softer, so it builds)
+      let mt = 0;
+      const soft = b < 4 && bars > 8 ? 0.75 : 1;
+      for (const [m, len] of melody[b % 16]) {
+        const human = (Math.random() - 0.5) * 0.02 + (mt === 0 ? 0 : 0.01);
+        this.piano(m - (b < 4 && bars > 8 ? 12 : 0), bt + mt * beat + human, len * beat, 0.14 * vol * soft);
+        mt += len;
+      }
+      if (strings && b >= 4) this.strings([ch[1] + 12, ch[2] + 12, ch[3] + 12], bt, beat * 4, (b >= 8 ? 0.026 : 0.016) * vol);
+    };
+    // schedule each bar ~2s ahead on the audio clock, rather than thousands of nodes at once
+    for (let b = 0; b < bars; b++) setTimeout(() => playBar(b), Math.max(0, (b * 4 * beat - 2) * 1000));
+    return bars * 4 * beat + 2;
+  }
+
   // Gentle chord bed: C – Am – F – G
   ambience(bars = 8, barDur = 2.4) {
     if (!this.ctx) return;
